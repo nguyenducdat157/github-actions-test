@@ -1,0 +1,14 @@
+name: Hello World Workflow  # Tên workflow, hiển thị trên GitHub
+
+on:  # Event kích hoạt
+  push:  # Chạy khi push code
+
+jobs:  # Các job
+  hello:  # Tên job
+    runs-on: ubuntu-latest  # Máy ảo Ubuntu mới nhất
+    steps:  # Các bước
+      - name: Checkout code  # Bước 1: Tải code
+        uses: actions/checkout@v4  # Action từ Marketplace
+
+      - name: Say Hello  # Bước 2: Chạy lệnh
+        run: echo "Hello, GitHub Actions! Đây là CI/CD đầu tiên của tôi."
