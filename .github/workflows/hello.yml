@@ -1,14 +1,19 @@
-name: Hello World Workflow  # Tên workflow, hiển thị trên GitHub
+name: Hello World Workflow  # Tên workflow – tùy chỉnh nếu thích
 
-on:  # Event kích hoạt
-  push:  # Chạy khi push code
+on:  # Phần events: Kích hoạt khi push
+  push:
+    branches: [main]  # Chỉ branch main (thay main bằng master nếu repo dùng master)
 
-jobs:  # Các job
-  hello:  # Tên job
-    runs-on: ubuntu-latest  # Máy ảo Ubuntu mới nhất
-    steps:  # Các bước
-      - name: Checkout code  # Bước 1: Tải code
-        uses: actions/checkout@v4  # Action từ Marketplace
+jobs:  # Phần jobs: Định nghĩa công việc
+  greet:  # Tên job: "greet" (tùy ý, để dễ nhớ)
+    runs-on: ubuntu-latest  # Chạy trên máy Ubuntu mới nhất (miễn phí)
 
-      - name: Say Hello  # Bước 2: Chạy lệnh
-        run: echo "Hello, GitHub Actions! Đây là CI/CD đầu tiên của tôi."
+    steps:  # Các bước trong job
+      - name: Checkout repository  # Tên step 1: Để dễ đọc log
+        uses: actions/checkout@v4  # Action chuẩn: Tải code repo về máy ảo
+
+      - name: Greet the world  # Tên step 2
+        run: |  # Lệnh shell đa dòng (dùng | để giữ format)
+          echo "Chào bạn! Đây là workflow YAML đầu tiên của tôi."
+          echo "YAML rất dễ: indent 2 spaces và dùng : cho key-value."
+          echo "Workflow này chạy tự động khi push code."
