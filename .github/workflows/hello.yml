@@ -1,19 +1,28 @@
-name: Hello World Workflow  # Tên workflow – tùy chỉnh nếu thích
+name: Hello World Workflow  # Tên workflow - hiển thị trên Actions tab
 
-on:  # Phần events: Kích hoạt khi push
+on:  # Triggers: Chạy khi push hoặc tạo PR
   push:
-    branches: [main]  # Chỉ branch main (thay main bằng master nếu repo dùng master)
+    branches: [ main ]  # Chỉ branch main
+  pull_request:
+    branches: [ main ]
 
-jobs:  # Phần jobs: Định nghĩa công việc
-  greet:  # Tên job: "greet" (tùy ý, để dễ nhớ)
-    runs-on: ubuntu-latest  # Chạy trên máy Ubuntu mới nhất (miễn phí)
+jobs:  # Danh sách jobs
+  greet:  # Job 1: Chào hỏi
+    runs-on: ubuntu-latest  # Runner: Ubuntu mới nhất
+    steps:  # Steps trong job
+      - name: Checkout code  # Step 1: Tải repo
+        uses: actions/checkout@v4  # Action chuẩn từ Marketplace
 
-    steps:  # Các bước trong job
-      - name: Checkout repository  # Tên step 1: Để dễ đọc log
-        uses: actions/checkout@v4  # Action chuẩn: Tải code repo về máy ảo
+      - name: Greet the world  # Step 2: Echo thông điệp
+        run: |  # Multi-line run (dùng | cho block)
+          echo "Chào bạn! Đây là GitHub Actions."
+          echo "YAML syntax: Đúng indent là 2 spaces."
+          echo "Workflow đang chạy trên: $RUNNER_OS"  # Biến env của GitHub
 
-      - name: Greet the world  # Tên step 2
-        run: |  # Lệnh shell đa dòng (dùng | để giữ format)
-          echo "Chào bạn! Đây là workflow YAML đầu tiên của tôi."
-          echo "YAML rất dễ: indent 2 spaces và dùng : cho key-value."
-          echo "Workflow này chạy tự động khi push code."
+  test-job:  # Job 2: Demo job song song (chạy cùng lúc với job 1)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simple test
+        run: echo "Job test thành công! Số PI ≈ 3.14159"
+
+# Kết thúc file - không cần gì thêm
