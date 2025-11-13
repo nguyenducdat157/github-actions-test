@@ -1,0 +1,34 @@
+name: Build React App  # Tên workflow
+
+on:  # Triggers
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:  # Một job chính cho build
+  build:  # Tên job
+    runs-on: ubuntu-latest  # Runner
+    steps:  # Danh sách steps
+      - name: Checkout code  # Step 1: Tải repo
+        uses: actions/checkout@v4  # Action từ Marketplace
+
+      - name: Setup Node.js  # Step 2: Cài Node
+        uses: actions/setup-node@v4  # Action official
+        with:  # Params
+          node-version: '18'  # Phiên bản Node
+          cache: 'npm'  # Cache node_modules để nhanh
+
+      - name: Install dependencies  # Step 3: npm install
+        working-directory: ./my-app  # Chạy trong subfolder app
+        run: npm ci  # ci = clean install, nhanh hơn npm install
+
+      - name: Build app  # Step 4: Build
+        working-directory: ./my-app
+        run: npm run build  # Tạo folder build/
+
+      - name: List build output  # Step 5: Kiểm tra (optional)
+        working-directory: ./my-app
+        run: ls -la build/  # Liệt kê files sau build
+
+# End file
