@@ -4,6 +4,7 @@ function App() {
   return (
     <div style={{ textAlign: 'center' }}>
       <header>
+        <h1>Deployed via Actions!</h1>
         <p>
           Test Github Actions
         </p>
