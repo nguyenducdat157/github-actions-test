@@ -1,5 +1,10 @@
 name: CI/CD React App
 
+# Permissions: Limit for security
+permissions:
+  contents: read
+  actions: write  # For badges
+
 on:
   push:
     branches: [ main ]
@@ -10,31 +15,35 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # Prevent hang
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout code  # Always first
+        uses: actions/checkout@v4  # Pin version
 
-      - name: Setup Node.js
+      - name: Setup Node.js with cache  # Cache deps for speed
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'  # Explicit path
 
-      - name: Install dependencies
+      - name: Install dependencies  # Clean install
         run: npm ci
 
-      - name: Build app
+      - name: Build app  # Production build
         run: npm run build
 
-      - name: List build output
+      - name: List build output  # Debug: Check files
         run: ls -la build/
 
-  test-and-lint:
-    needs: build
+  test-and-lint:  # CI: Test & Lint with matrix
+    needs: build  # Sequential: After build
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # Longer for matrix
     strategy:
+      fail-fast: false  # Don't stop if one fails
       matrix:
-        node-version: [16.x, 18.x, 20.x]
+        node-version: [16.x, 18.x, 20.x]  # Parallel test
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,23 +57,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint code
+      - name: Lint code  # Style check
         run: npm run lint
 
-      - name: Run tests with coverage
+      - name: Run tests with coverage  # Unit test
         run: npm run test:ci
 
-      - name: Upload coverage report
+      - name: Upload coverage report  # Artifact for review
+        if: always()  # Upload even if fail
         uses: actions/upload-artifact@v4
         with:
           name: coverage-${{ matrix.node-version }}
           path: coverage/
+          retention-days: 7  # Keep 7 days
 
-  deploy:  # Job mới: Deploy Vercel
-    needs: test-and-lint  # Chỉ deploy nếu test pass
+  deploy:  # CD: Deploy Vercel (production only)
+    needs: test-and-lint  # After CI pass
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'  # Chỉ deploy main (không PR)
-    environment: production  # Approval gate: Phải approve manual
+    if: github.ref == 'refs/heads/main'  # Only main
+    environment: production  # Approval gate
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -81,10 +92,10 @@ jobs:
       - name: Build app
         run: npm run build
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25  # Action Vercel (cập nhật mới nhất)
+      - name: Deploy to Vercel  # Secure with secrets
+        uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'  # Deploy production
+          vercel-args: '--prod'
