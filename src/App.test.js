@@ -54,4 +54,10 @@ describe('App Component', () => {
     // eslint-disable-next-line no-undef
     expect(mainDiv).toHaveStyle({ textAlign: 'center' });
   });
+
+  // eslint-disable-next-line no-undef
+  test('fails', () => {
+    // eslint-disable-next-line no-undef
+    expect(1).toBe(2);
+  });
 });
